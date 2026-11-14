@@ -11,6 +11,8 @@ from django.core.paginator import Paginator
 from questions.models import Question, Answer
 from .forms import RegistrationForm, UserProfileForm, PasswordChangeCustomForm
 
+from django.db import transaction
+from events.services import create_event
 
 def home1(request):
     questions = Question.objects.select_related("asked_by").all().order_by("-asked_at")
@@ -106,14 +108,25 @@ def edit_profile(request):
 @require_POST
 def user_questions(request):
     question_id = request.POST.get("question_id")
+
     question = get_object_or_404(
         Question,
         id=question_id,
         asked_by=request.user,
     )
-    question.delete()
-    return redirect("user_questions")
 
+    with transaction.atomic():
+        create_event(
+            event_type="question_deleted",
+            user_id=request.user.id,
+            payload={
+                "question_id": question.id
+            }
+        )
+
+        question.delete()
+
+    return redirect("user_questions")
 
 @login_required
 def user_questions_list(request):
@@ -125,12 +138,25 @@ def user_questions_list(request):
 @require_POST
 def user_answers_delete(request):
     answer_id = request.POST.get("answer_id")
+
     answer = get_object_or_404(
         Answer,
         id=answer_id,
         answered_by=request.user,
     )
-    answer.delete()
+
+    with transaction.atomic():
+        create_event(
+            event_type="answer_deleted",
+            user_id=request.user.id,
+            payload={
+                "answer_id": answer.id,
+                "question_id": answer.question_id
+            }
+        )
+
+        answer.delete()
+
     return redirect("user_answers")
 
 
