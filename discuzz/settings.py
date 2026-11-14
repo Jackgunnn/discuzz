@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "users.apps.UsersConfig",
     "questions.apps.QuestionsConfig",
+    "events.apps.EventsConfig",
 ]
 
 MIDDLEWARE = [
