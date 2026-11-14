@@ -18,7 +18,10 @@
         <div>
         {% if user.is_authenticated %}
             <a href="{% url 'user_profile' %}" class="bg-green-600 hover:bg-green-400 text-white font-bold py-1 px-2 border-b-4 border-green-700 hover:border-green-500 rounded">Profile</a>
-            <a href="{% url 'logout' %}" class="bg-green-600 hover:bg-green-400 text-white font-bold py-1 px-2 border-b-4 border-green-700 hover:border-green-500 rounded">Logout</a>
+            <form method="post" action="{% url 'logout' %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="bg-green-600 hover:bg-green-400 text-white font-bold py-1 px-2 border-b-4 border-green-700 hover:border-green-500 rounded">Logout</button>
+            </form>
         {% else %}
             <a href="{% url 'login' %}" class="bg-green-600 hover:bg-green-400 text-white font-bold py-1 px-2 border-b-4 border-green-700 hover:border-green-500 rounded">Login</a>
             <a href="{% url 'register' %}" class="bg-green-600 hover:bg-green-400 text-white font-bold py-1 px-2 border-b-4 border-green-700 hover:border-green-500 rounded">Register</a>

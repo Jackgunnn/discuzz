@@ -1,20 +1,39 @@
 from django import forms
-from django.contrib.auth.forms import UserChangeForm, PasswordChangeForm, SetPasswordForm
+from django.contrib.auth.forms import PasswordChangeForm, UserCreationForm
 from django.contrib.auth.models import User
 
 
-class UserProfileForm(UserChangeForm):
+INPUT_CLASS = "mt-1 p-2 w-full border rounded-md bg-white text-black"
+
+
+class RegistrationForm(UserCreationForm):
+    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={"class": INPUT_CLASS}))
+
+    class Meta(UserCreationForm.Meta):
+        model = User
+        fields = ("username", "email")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.setdefault("class", INPUT_CLASS)
+
+
+class UserProfileForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['username', 'email']
+        fields = ("username", "email")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs["class"] = INPUT_CLASS
+
 
 class PasswordChangeCustomForm(PasswordChangeForm):
-    def __init__(self, user, *args, **kwargs):
-        super().__init__(user, *args, **kwargs)
+    """Use Django's built-in password validation and password-saving logic."""
 
-    def save(self, commit=True):
-        password = self.cleaned_data["new_password1"]
-        self.user.set_password(password)
-        if commit:
-            self.user.save()
-        return self.user
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs["class"] = INPUT_CLASS
